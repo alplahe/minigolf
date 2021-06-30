@@ -36,6 +36,9 @@ public class HierarchyManager : MonoBehaviour
 
     for (int i = 0; i < headerChildrenGOs.Count; i++)
     {
+      if (headerChildrenGOs[i].parent != headerGOs[index].transform &&
+                      headerChildrenGOs[i].parent != this.transform)  continue;
+
       headerChildrenGOs[i].parent = null;
       headerChildrenGOs[i].SetAsLastSibling();
     }

@@ -60,53 +60,39 @@ public class BallMovement : MonoBehaviour
   private void UpdateLinePositionsWithKeyboard()
   {
     if (IsMouseControl) return;
-
-    lineRenderer.SetPosition(0, transform.position);
-    lineRenderer.SetPosition(1, transform.position + Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength);
+    UpdateLinePositions();
   }
 
   private void UpdateLinePositionsWithMouse()
   {
-    lineRenderer.SetPosition(0, transform.position);
-
-    Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-    Vector3 mousePosition = Input.mousePosition;
-    mousePosition.z = Camera.main.transform.position.y - transform.position.y;
-    worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-
-    Debug.Log("worldPosition: " + worldPosition);
-    Debug.Log("Input.mousePosition: " + Input.mousePosition);
-    Vector3 angleVector = new Vector3(worldPosition.x, transform.position.y, worldPosition.z); 
-    lineRenderer.SetPosition(1, worldPosition);
-
     AssignBallWithCursorAngle();
+    UpdateLinePositions();
+  }
+
+  private void UpdateLinePositions()
+  {
+    lineRenderer.SetPosition(0, transform.position);
+    lineRenderer.SetPosition(1, transform.position + Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength);
   }
 
   private void AssignBallWithCursorAngle()
   {
-    Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
     Vector3 mousePosition = Input.mousePosition;
     mousePosition.z = Camera.main.transform.position.y - transform.position.y;
-    worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
+    Vector3 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
 
-    Debug.Log("worldPosition: " + worldPosition.ToString("F6"));
-    Debug.Log("Input.mousePosition: " + Input.mousePosition);
-
-    Vector3 vectorWithoutYAxis = new Vector3(1.0f, 0.0f, 1.0f);
-    Vector3 cursorToBallVector = new Vector3((worldPosition.x - transform.position.x),
-                                             (worldPosition.y - transform.position.y),
-                                             (worldPosition.z - transform.position.z));
-    //Vector3 cursorToBallVector = (worldPosition - transform.position) * vectorWithoutYAxis;
-    Debug.Log("cursorToBallVector: " + cursorToBallVector.ToString("F6"));
-
+    Vector3 cursorToBallVector = worldPosition - transform.position;
     float cursorToBallAngle = Vector3.Angle(cursorToBallVector, Vector3.forward);
-    if (worldPosition.x - transform.position.x < 0) cursorToBallAngle = MAX_ANGLE - cursorToBallAngle;
-    angle = cursorToBallAngle;
-    Debug.Log("cursorToBallAngle: " + cursorToBallAngle);
 
-    Debug.Log("GetWorldPositionOnPlane: " + GetWorldPositionOnPlane(worldPosition, 0.13f));
+    cursorToBallAngle = ReformatAngle(worldPosition, cursorToBallAngle);
+    angle = cursorToBallAngle;
+  }
+
+  // Reformat angle to 0-360 degrees. Previously it was 0-180, 180-0.
+  private float ReformatAngle(Vector3 worldPosition, float cursorToBallAngle)
+  {
+    if (worldPosition.x - transform.position.x < 0) cursorToBallAngle = MAX_ANGLE - cursorToBallAngle;
+    return cursorToBallAngle;
   }
 
   public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float y)

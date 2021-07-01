@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5813429055367291454}
   - component: {fileID: 5813429055367292354}
   - component: {fileID: 5813429055367292352}
+  - component: {fileID: 5201094153879603650}
   - component: {fileID: 6398824498185214259}
   m_Layer: 0
   m_Name: Ball
@@ -131,6 +132,20 @@ MonoBehaviour:
   maxAngularVelocity: 100
   changeAngleSpeed: 40
   fastChangeAngleSpeedMultiplier: 150
+  controlSet: {fileID: 5201094153879603650}
+--- !u!114 &5201094153879603650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5813429055367291449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe655dc02570f943bbefe6b3becf50d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parent: {fileID: 5813429055367292352}
 --- !u!120 &6398824498185214259
 LineRenderer:
   m_ObjectHideFlags: 0

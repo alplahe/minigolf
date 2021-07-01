@@ -15,6 +15,10 @@ public class BallMovement : MonoBehaviour
   private float angle;
   private float currentChangeAngleSpeed;
   private float ballRadius;
+  private float ballWithCursorAngle;
+
+  private const float MIN_ANGLE = 0.0f;
+  private const float MAX_ANGLE = 360.0f;
 
   #region Init
   private void Start()
@@ -67,11 +71,20 @@ public class BallMovement : MonoBehaviour
       Debug.Log("press SPACE");
       rigidbody.AddForce(0.01f, 0, 0, ForceMode.Impulse);
     }
+
+    //AssignBallWithCursorAngle();
   }
 
   private void ChangeAngle(int direction)
   {
     angle += currentChangeAngleSpeed * Time.deltaTime * direction;
+    ClampAngle();
+  }
+
+  void ClampAngle()
+  {
+    if (angle >= MAX_ANGLE) angle -= MAX_ANGLE;
+    if (angle < MIN_ANGLE) angle += MAX_ANGLE;
   }
 
   private void UpdateLinePositionsWithKeyboard()
@@ -87,12 +100,49 @@ public class BallMovement : MonoBehaviour
     Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
     Vector3 mousePos = Input.mousePosition;
-    mousePos.z = Camera.main.nearClipPlane;
+    mousePos.z = Camera.main.transform.position.y - transform.position.y;
     worldPosition = Camera.main.ScreenToWorldPoint(mousePos);
 
     Debug.Log("worldPosition: " + worldPosition);
     Debug.Log("Input.mousePosition: " + Input.mousePosition);
     Vector3 angleVector = new Vector3(worldPosition.x, transform.position.y, worldPosition.z); 
     lineRenderer.SetPosition(1, worldPosition);
+
+    AssignBallWithCursorAngle();
+  }
+
+  private void AssignBallWithCursorAngle()
+  {
+    Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+    Vector3 mousePos = Input.mousePosition;
+    mousePos.z = Camera.main.transform.position.y - transform.position.y;
+    worldPosition = Camera.main.ScreenToWorldPoint(mousePos);
+
+    Debug.Log("worldPosition: " + worldPosition.ToString("F6"));
+    Debug.Log("Input.mousePosition: " + Input.mousePosition);
+
+    Vector3 vectorWithoutYAxis = new Vector3(1.0f, 0.0f, 1.0f);
+    Vector3 cursorToBallVector = new Vector3((worldPosition.x - transform.position.x),
+                                             (worldPosition.y - transform.position.y),
+                                             (worldPosition.z - transform.position.z));
+    //Vector3 cursorToBallVector = (worldPosition - transform.position) * vectorWithoutYAxis;
+    Debug.Log("cursorToBallVector: " + cursorToBallVector.ToString("F6"));
+
+    float cursorToBallAngle = Vector3.Angle(cursorToBallVector, Vector3.forward);
+    if (worldPosition.x - transform.position.x < 0) cursorToBallAngle = MAX_ANGLE - cursorToBallAngle;
+    angle = cursorToBallAngle;
+    Debug.Log("cursorToBallAngle: " + cursorToBallAngle);
+
+    Debug.Log("GetWorldPositionOnPlane: " + GetWorldPositionOnPlane(worldPosition, 0.13f));
+  }
+
+  public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float y)
+  {
+    Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+    Plane xz = new Plane(Vector3.up, new Vector3(0, y, 0));
+    float distance;
+    xz.Raycast(ray, out distance);
+    return ray.GetPoint(distance);
   }
 }

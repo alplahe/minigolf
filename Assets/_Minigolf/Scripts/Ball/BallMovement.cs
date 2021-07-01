@@ -11,6 +11,8 @@ public class BallMovement : MonoBehaviour
   public float changeAngleSpeed;
   public float fastChangeAngleSpeedMultiplier;
   public float changeForceMagnitudeSpeed;
+  public float minSpeedIsConsideredMoving = 0.01f;
+  public float forceMultiplier = 0.5f;
 
   private Rigidbody ballRigidbody;
   private LineRenderer lineRenderer;
@@ -19,6 +21,7 @@ public class BallMovement : MonoBehaviour
   private float ballRadius;
   private float ballWithCursorAngle;
   private bool isMouseControl;
+  private bool isKeyboardControl;
   private Vector3 worldPosition;
 
   private const float MIN_ANGLE = 0.0f;
@@ -26,11 +29,13 @@ public class BallMovement : MonoBehaviour
   private const float MIN_FORCE_MAGNITUDE = 0.05f;
   private const float MAX_FORCE_MAGNITUDE = 0.6f;
   private const float STARTING_FORCE_MAGNITUDE = 0.25f;
+  private const int FORCE_DIRECTION = -1;
 
   [SerializeField] private BallMovementControlSet controlSet;
-  [SerializeField, Range(0,5)] private float forceMagnitude;
+  [SerializeField, Range(0, 5)] private float forceMagnitude;
 
   public bool IsMouseControl { get => isMouseControl; set => isMouseControl = value; }
+  public bool IsKeyboardControl { get => isKeyboardControl; set => isKeyboardControl = value; }
 
   #region Init
   private void Start()
@@ -50,6 +55,11 @@ public class BallMovement : MonoBehaviour
     controlSet.Init(this);
   }
   #endregion
+
+  private void Update()
+  {
+    UpdateLinePositions();
+  }
 
   #region Direction line
   private void ChangeAngle(int direction)
@@ -86,11 +96,32 @@ public class BallMovement : MonoBehaviour
 
   private void UpdateLinePositions()
   {
+    if (!IsLineRendererShowable())
+    {
+      Debug.Log("DO NOT show line renderer");
+      lineRenderer.SetPosition(0, Vector3.zero);
+      lineRenderer.SetPosition(1, Vector3.zero);
+      return;
+    }
+
     ClampForceMagnitude();
 
     lineRenderer.SetPosition(0, transform.position);
     lineRenderer.SetPosition(1, transform.position +
                                 Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength * forceMagnitude);
+  }
+
+  private bool IsLineRendererShowable()
+  {
+    //return IsMouseControl || IsKeyboardControl;
+    return !IsBallMoving();
+  }
+
+  private bool IsBallMoving()
+  {
+    if (ballRigidbody.velocity.magnitude < minSpeedIsConsideredMoving) ballRigidbody.velocity = Vector3.zero;
+
+    return ballRigidbody.velocity.magnitude != 0;
   }
 
   private void ClampForceMagnitude()
@@ -121,6 +152,20 @@ public class BallMovement : MonoBehaviour
   }
   #endregion
 
+  #region Force
+  private void ApplyForce()
+  {
+    if (IsBallMoving()) return;
+
+    ballRigidbody.AddForce(Quaternion.Euler(0, angle, 0) * Vector3.forward * 
+                           lineLength * forceMagnitude * FORCE_DIRECTION *
+                           forceMultiplier, 
+                           ForceMode.Impulse);
+    //ballRigidbody.AddForce(0.01f, 0, 0, ForceMode.Impulse);
+    UpdateLinePositions();
+  }
+  #endregion
+
   #region Control set
   public void OnUpdateLinePositionsWithMouse()
   {
@@ -129,8 +174,7 @@ public class BallMovement : MonoBehaviour
 
   public void OnApplyForce()
   {
-    ballRigidbody.AddForce(0.01f, 0, 0, ForceMode.Impulse);
-    UpdateLinePositions();
+    ApplyForce();
   }
   
   public void OnRegularDirectionSpeed()

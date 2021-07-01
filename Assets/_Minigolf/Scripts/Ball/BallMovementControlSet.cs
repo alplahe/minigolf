@@ -23,6 +23,7 @@ public class BallMovementControlSet : MonoBehaviour
   private void Update()
   {
     OnLeftMouseButton();
+    OnLeftMouseButtonUp();
 
     OnAccept();
     OnLeftShift();
@@ -42,7 +43,23 @@ public class BallMovementControlSet : MonoBehaviour
     {
       Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButton!");
       parent.IsMouseControl = true;
+      parent.IsKeyboardControl = true;
       parent.OnUpdateLinePositionsWithMouse();
+    }
+    else
+    {
+      parent.IsMouseControl = false;
+    }
+  }
+
+  public void OnLeftMouseButtonUp()
+  {
+    if (Input.GetMouseButtonUp(0))
+    {
+      Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButtonUp!");
+      parent.IsMouseControl = false;
+      parent.IsKeyboardControl = true;
+      parent.OnApplyForce();
     }
     else
     {
@@ -54,7 +71,7 @@ public class BallMovementControlSet : MonoBehaviour
   #region Keyboard
   public void OnAccept()
   {
-    if (Input.GetKey(KeyCode.Space))
+    if (Input.GetKeyDown(KeyCode.Space))
     {
       Debug.Log($"#BallMovementControlSet# pressed accept!");
       parent.OnApplyForce();

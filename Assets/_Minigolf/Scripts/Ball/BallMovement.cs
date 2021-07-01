@@ -10,6 +10,7 @@ public class BallMovement : MonoBehaviour
   public float maxAngularVelocity;
   public float changeAngleSpeed;
   public float fastChangeAngleSpeedMultiplier;
+  public float changeForceMagnitudeSpeed;
 
   private Rigidbody ballRigidbody;
   private LineRenderer lineRenderer;
@@ -18,11 +19,16 @@ public class BallMovement : MonoBehaviour
   private float ballRadius;
   private float ballWithCursorAngle;
   private bool isMouseControl;
+  private Vector3 worldPosition;
 
   private const float MIN_ANGLE = 0.0f;
   private const float MAX_ANGLE = 360.0f;
+  private const float MIN_FORCE_MAGNITUDE = 0.05f;
+  private const float MAX_FORCE_MAGNITUDE = 0.6f;
+  private const float STARTING_FORCE_MAGNITUDE = 0.25f;
 
   [SerializeField] private BallMovementControlSet controlSet;
+  [SerializeField, Range(0,5)] private float forceMagnitude;
 
   public bool IsMouseControl { get => isMouseControl; set => isMouseControl = value; }
 
@@ -39,6 +45,7 @@ public class BallMovement : MonoBehaviour
     ballRigidbody.maxAngularVelocity = maxAngularVelocity;
     currentChangeAngleSpeed = changeAngleSpeed;
     ballRadius = GetComponent<SphereCollider>().radius;
+    forceMagnitude = STARTING_FORCE_MAGNITUDE;
 
     controlSet.Init(this);
   }
@@ -63,6 +70,14 @@ public class BallMovement : MonoBehaviour
     UpdateLinePositions();
   }
 
+  private void UpdateForceMagnitudeWithKeyboard(int positiveGrown)
+  {
+    if (IsMouseControl) return;
+
+    forceMagnitude += changeForceMagnitudeSpeed * Time.deltaTime * positiveGrown;
+    ClampForceMagnitude();
+  }
+
   private void UpdateLinePositionsWithMouse()
   {
     AssignBallWithCursorAngle();
@@ -71,17 +86,27 @@ public class BallMovement : MonoBehaviour
 
   private void UpdateLinePositions()
   {
+    ClampForceMagnitude();
+
     lineRenderer.SetPosition(0, transform.position);
-    lineRenderer.SetPosition(1, transform.position + Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength);
+    lineRenderer.SetPosition(1, transform.position +
+                                Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength * forceMagnitude);
+  }
+
+  private void ClampForceMagnitude()
+  {
+    if (forceMagnitude >= MAX_FORCE_MAGNITUDE) forceMagnitude = MAX_FORCE_MAGNITUDE;
+    if (forceMagnitude < MIN_FORCE_MAGNITUDE) forceMagnitude = MIN_FORCE_MAGNITUDE;
   }
 
   private void AssignBallWithCursorAngle()
   {
     Vector3 mousePosition = Input.mousePosition;
     mousePosition.z = Camera.main.transform.position.y - transform.position.y;
-    Vector3 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
+    worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
 
     Vector3 cursorToBallVector = worldPosition - transform.position;
+    forceMagnitude = cursorToBallVector.magnitude;
     float cursorToBallAngle = Vector3.Angle(cursorToBallVector, Vector3.forward);
 
     cursorToBallAngle = ReformatAngle(worldPosition, cursorToBallAngle);
@@ -94,15 +119,6 @@ public class BallMovement : MonoBehaviour
     if (worldPosition.x - transform.position.x < 0) cursorToBallAngle = MAX_ANGLE - cursorToBallAngle;
     return cursorToBallAngle;
   }
-
-  public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float y)
-  {
-    Ray ray = Camera.main.ScreenPointToRay(screenPosition);
-    Plane xz = new Plane(Vector3.up, new Vector3(0, y, 0));
-    float distance;
-    xz.Raycast(ray, out distance);
-    return ray.GetPoint(distance);
-  }
   #endregion
 
   #region Control set
@@ -114,6 +130,7 @@ public class BallMovement : MonoBehaviour
   public void OnApplyForce()
   {
     ballRigidbody.AddForce(0.01f, 0, 0, ForceMode.Impulse);
+    UpdateLinePositions();
   }
   
   public void OnRegularDirectionSpeed()
@@ -135,6 +152,17 @@ public class BallMovement : MonoBehaviour
   public void OnRight()
   {
     ChangeAngle(1);
+    UpdateLinePositionsWithKeyboard();
+  }
+  public void OnUp()
+  {
+    UpdateForceMagnitudeWithKeyboard(-1);
+    UpdateLinePositionsWithKeyboard();
+  }
+
+  public void OnDown()
+  {
+    UpdateForceMagnitudeWithKeyboard(1);
     UpdateLinePositionsWithKeyboard();
   }
   #endregion

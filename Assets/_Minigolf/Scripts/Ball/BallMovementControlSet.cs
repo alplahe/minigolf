@@ -28,6 +28,8 @@ public class BallMovementControlSet : MonoBehaviour
     OnLeftShift();
     OnLeft();
     OnRight();
+    OnUp();
+    OnDown();
   }
   #endregion
 
@@ -89,6 +91,26 @@ public class BallMovementControlSet : MonoBehaviour
     {
       Debug.Log($"#BallMovementControlSet# pressed OnRight!");
       parent.OnRight();
+    }
+  }
+
+  public void OnUp()
+  {
+    if (Input.GetKey(KeyCode.UpArrow) ||
+        Input.GetKey(KeyCode.W))
+    {
+      Debug.Log($"#BallMovementControlSet# pressed OnUp!");
+      parent.OnUp();
+    }
+  }
+
+  public void OnDown()
+  {
+    if (Input.GetKey(KeyCode.DownArrow) ||
+        Input.GetKey(KeyCode.S))
+    {
+      Debug.Log($"#BallMovementControlSet# pressed OnDown!");
+      parent.OnDown();
     }
   }
   #endregion

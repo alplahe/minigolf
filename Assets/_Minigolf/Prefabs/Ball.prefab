@@ -128,11 +128,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxPower: 0
-  lineLength: 0.25
+  lineLength: 1
   maxAngularVelocity: 100
   changeAngleSpeed: 40
   fastChangeAngleSpeedMultiplier: 150
+  changeForceMagnitudeSpeed: 0.5
   controlSet: {fileID: 5201094153879603650}
+  forceMagnitude: 0
 --- !u!114 &5201094153879603650
 MonoBehaviour:
   m_ObjectHideFlags: 0

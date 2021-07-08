@@ -107,7 +107,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5813429055367291449}
   serializedVersion: 2
-  m_Mass: 0.045
+  m_Mass: 0.025
   m_Drag: 1
   m_AngularDrag: 0.05
   m_UseGravity: 1
@@ -133,6 +133,8 @@ MonoBehaviour:
   changeAngleSpeed: 40
   fastChangeAngleSpeedMultiplier: 150
   changeForceMagnitudeSpeed: 0.5
+  minSpeedIsConsideredMoving: 0.01
+  forceMultiplier: 0.25
   controlSet: {fileID: 5201094153879603650}
   forceMagnitude: 0
 --- !u!114 &5201094153879603650

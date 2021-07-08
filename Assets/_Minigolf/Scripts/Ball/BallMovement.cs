@@ -29,7 +29,8 @@ public class BallMovement : MonoBehaviour
   private const float MIN_FORCE_MAGNITUDE = 0.05f;
   private const float MAX_FORCE_MAGNITUDE = 0.6f;
   private const float STARTING_FORCE_MAGNITUDE = 0.25f;
-  private const int FORCE_DIRECTION = -1;
+  private const int FORCE_DIRECTION = -1;                 // Inverse the direction to set the line as the golf club.
+                                                          // TODO 07-07-2021: consider this design as may be confusing.
 
   [SerializeField] private BallMovementControlSet controlSet;
   [SerializeField, Range(0, 5)] private float forceMagnitude;
@@ -119,7 +120,11 @@ public class BallMovement : MonoBehaviour
 
   private bool IsBallMoving()
   {
-    if (ballRigidbody.velocity.magnitude < minSpeedIsConsideredMoving) ballRigidbody.velocity = Vector3.zero;
+    if (ballRigidbody.velocity.magnitude < minSpeedIsConsideredMoving)
+    {
+      ballRigidbody.velocity = Vector3.zero;
+      ballRigidbody.angularVelocity = Vector3.zero;
+    }
 
     return ballRigidbody.velocity.magnitude != 0;
   }

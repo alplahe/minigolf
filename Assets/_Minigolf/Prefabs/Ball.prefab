@@ -135,6 +135,7 @@ MonoBehaviour:
   changeForceMagnitudeSpeed: 0.5
   minSpeedIsConsideredMoving: 0.01
   forceMultiplier: 0.25
+  firstLinePositionDistanceGap: 0.1
   controlSet: {fileID: 5201094153879603650}
   forceMagnitude: 0
 --- !u!114 &5201094153879603650

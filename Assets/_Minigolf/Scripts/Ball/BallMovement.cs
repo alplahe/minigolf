@@ -13,6 +13,7 @@ public class BallMovement : MonoBehaviour
   public float changeForceMagnitudeSpeed;
   public float minSpeedIsConsideredMoving = 0.01f;
   public float forceMultiplier = 0.5f;
+  public float firstLinePositionDistanceGap;
 
   private Rigidbody ballRigidbody;
   private LineRenderer lineRenderer;
@@ -107,9 +108,13 @@ public class BallMovement : MonoBehaviour
 
     ClampForceMagnitude();
 
-    lineRenderer.SetPosition(0, transform.position);
+    Vector3 lineDirection = Quaternion.Euler(0, angle, 0) * Vector3.forward;
+
+    lineRenderer.SetPosition(0, transform.position +
+                                lineDirection * firstLinePositionDistanceGap);
     lineRenderer.SetPosition(1, transform.position +
-                                Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength * forceMagnitude);
+                                lineDirection * firstLinePositionDistanceGap +
+                                lineDirection * lineLength * forceMagnitude);
   }
 
   private bool IsLineRendererShowable()
@@ -141,8 +146,11 @@ public class BallMovement : MonoBehaviour
     mousePosition.z = Camera.main.transform.position.y - transform.position.y;
     worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
 
+    Vector3 lineDirection = Quaternion.Euler(0, angle, 0) * Vector3.forward;
+
     Vector3 cursorToBallVector = worldPosition - transform.position;
-    forceMagnitude = cursorToBallVector.magnitude;
+    forceMagnitude = cursorToBallVector.magnitude - firstLinePositionDistanceGap; // Substract starting distance gap to starting
+                                                                                  // counting force from that distance
     float cursorToBallAngle = Vector3.Angle(cursorToBallVector, Vector3.forward);
 
     cursorToBallAngle = ReformatAngle(worldPosition, cursorToBallAngle);

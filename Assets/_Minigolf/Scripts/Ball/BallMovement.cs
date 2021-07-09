@@ -24,6 +24,9 @@ public class BallMovement : MonoBehaviour
   private bool isMouseControl;
   private bool isKeyboardControl;
   private Vector3 worldPosition;
+  private bool isPuttCanceled = false;
+  private bool isLineShowedAfterBallStop = false;
+  private bool isBallPutted = false;
 
   private const float MIN_ANGLE = 0.0f;
   private const float MAX_ANGLE = 360.0f;
@@ -38,6 +41,7 @@ public class BallMovement : MonoBehaviour
 
   public bool IsMouseControl { get => isMouseControl; set => isMouseControl = value; }
   public bool IsKeyboardControl { get => isKeyboardControl; set => isKeyboardControl = value; }
+  public bool IsPuttCanceled { get => isPuttCanceled; set => isPuttCanceled = value; }
 
   #region Init
   private void Start()
@@ -55,6 +59,8 @@ public class BallMovement : MonoBehaviour
     forceMagnitude = STARTING_FORCE_MAGNITUDE;
 
     controlSet.Init(this);
+
+    ShowLineRenderer();
   }
   #endregion
 
@@ -76,6 +82,12 @@ public class BallMovement : MonoBehaviour
     if (angle < MIN_ANGLE) angle += MAX_ANGLE;
   }
 
+  private void ShowLineRenderer()
+  {
+    ClampForceMagnitude();
+    SetLinePositions(angle, firstLinePositionDistanceGap, lineLength, forceMagnitude);
+  }
+
   private void UpdateLinePositionsWithKeyboard()
   {
     if (IsMouseControl) return;
@@ -92,6 +104,7 @@ public class BallMovement : MonoBehaviour
 
   private void UpdateLinePositionsWithMouse()
   {
+    if (IsPuttCanceled) return;
     AssignBallWithCursorAngle();
     UpdateLinePositions();
   }
@@ -101,12 +114,30 @@ public class BallMovement : MonoBehaviour
     if (!IsLineRendererShowable())
     {
       Debug.Log("DO NOT show line renderer");
-      lineRenderer.SetPosition(0, Vector3.zero);
-      lineRenderer.SetPosition(1, Vector3.zero);
+      HideLinePositions();
       return;
     }
 
+    if (!IsMouseControl && !IsKeyboardControl && isLineShowedAfterBallStop) return;
+
     ClampForceMagnitude();
+    SetLinePositions(angle, firstLinePositionDistanceGap, lineLength, forceMagnitude);
+    isLineShowedAfterBallStop = true;
+  }
+
+  private void HideLinePositions()
+  {
+    Debug.Log("HideLinePositions");
+
+    lineRenderer.SetPosition(0, Vector3.zero);
+    lineRenderer.SetPosition(1, Vector3.zero);
+
+    isLineShowedAfterBallStop = false;
+  }
+
+  private void SetLinePositions(float angle, float firstLinePositionDistanceGap, float lineLength, float forceMagnitude)
+  {
+    Debug.Log("SetLinePositions");
 
     Vector3 lineDirection = Quaternion.Euler(0, angle, 0) * Vector3.forward;
 
@@ -119,7 +150,6 @@ public class BallMovement : MonoBehaviour
 
   private bool IsLineRendererShowable()
   {
-    //return IsMouseControl || IsKeyboardControl;
     return !IsBallMoving();
   }
 
@@ -130,6 +160,9 @@ public class BallMovement : MonoBehaviour
       ballRigidbody.velocity = Vector3.zero;
       ballRigidbody.angularVelocity = Vector3.zero;
     }
+
+    //bool isBallMoving = ballRigidbody.velocity.magnitude != 0;
+    //Debug.Log("IsBallMoving: " + isBallMoving);
 
     return ballRigidbody.velocity.magnitude != 0;
   }
@@ -163,19 +196,30 @@ public class BallMovement : MonoBehaviour
     if (worldPosition.x - transform.position.x < 0) cursorToBallAngle = MAX_ANGLE - cursorToBallAngle;
     return cursorToBallAngle;
   }
+
   #endregion
 
   #region Force
   private void ApplyForce()
   {
     if (IsBallMoving()) return;
+    if (IsPuttCanceled) return;
 
     ballRigidbody.AddForce(Quaternion.Euler(0, angle, 0) * Vector3.forward * 
                            lineLength * forceMagnitude * FORCE_DIRECTION *
                            forceMultiplier, 
                            ForceMode.Impulse);
-    //ballRigidbody.AddForce(0.01f, 0, 0, ForceMode.Impulse);
-    UpdateLinePositions();
+
+    HideLinePositions();
+    isBallPutted = true;
+  }
+
+  void CancelPutt()
+  {
+    if (!IsMouseControl) return;
+    IsPuttCanceled = true;
+    forceMagnitude = STARTING_FORCE_MAGNITUDE;
+    ShowLineRenderer();
   }
   #endregion
 
@@ -188,6 +232,11 @@ public class BallMovement : MonoBehaviour
   public void OnApplyForce()
   {
     ApplyForce();
+  }
+
+  public void OnCancelPutt()
+  {
+    CancelPutt();
   }
   
   public void OnRegularDirectionSpeed()

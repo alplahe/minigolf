@@ -26,6 +26,7 @@ public class BallMovementControlSet : MonoBehaviour
     OnLeftMouseButtonUp();
 
     OnAccept();
+    OnCancel();
     OnLeftShift();
     OnLeft();
     OnRight();
@@ -43,12 +44,12 @@ public class BallMovementControlSet : MonoBehaviour
     {
       Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButton!");
       parent.IsMouseControl = true;
-      parent.IsKeyboardControl = true;
+      parent.IsKeyboardControl = false;
       parent.OnUpdateLinePositionsWithMouse();
     }
     else
     {
-      parent.IsMouseControl = false;
+      //parent.IsMouseControl = false;
     }
   }
 
@@ -58,12 +59,12 @@ public class BallMovementControlSet : MonoBehaviour
     {
       Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButtonUp!");
       parent.IsMouseControl = false;
-      parent.IsKeyboardControl = true;
-      parent.OnApplyForce();
+      //parent.IsKeyboardControl = true;
+      Putt();
     }
     else
     {
-      parent.IsMouseControl = false;
+      //parent.IsMouseControl = false;
     }
   }
   #endregion
@@ -74,7 +75,17 @@ public class BallMovementControlSet : MonoBehaviour
     if (Input.GetKeyDown(KeyCode.Space))
     {
       Debug.Log($"#BallMovementControlSet# pressed accept!");
-      parent.OnApplyForce();
+      parent.IsKeyboardControl = true;
+      Putt();
+    }
+  }
+
+  public void OnCancel()
+  {
+    if (Input.GetKeyDown(KeyCode.Escape))
+    {
+      Debug.Log($"#BallMovementControlSet# pressed cancel!");
+      parent.OnCancelPutt();
     }
   }
 
@@ -97,6 +108,7 @@ public class BallMovementControlSet : MonoBehaviour
         Input.GetKey(KeyCode.A))
     {
       Debug.Log($"#BallMovementControlSet# pressed OnLeft!");
+      parent.IsKeyboardControl = true;
       parent.OnLeft();
     }
   }
@@ -107,6 +119,7 @@ public class BallMovementControlSet : MonoBehaviour
         Input.GetKey(KeyCode.D))
     {
       Debug.Log($"#BallMovementControlSet# pressed OnRight!");
+      parent.IsKeyboardControl = true;
       parent.OnRight();
     }
   }
@@ -117,6 +130,7 @@ public class BallMovementControlSet : MonoBehaviour
         Input.GetKey(KeyCode.W))
     {
       Debug.Log($"#BallMovementControlSet# pressed OnUp!");
+      parent.IsKeyboardControl = true;
       parent.OnUp();
     }
   }
@@ -127,9 +141,19 @@ public class BallMovementControlSet : MonoBehaviour
         Input.GetKey(KeyCode.S))
     {
       Debug.Log($"#BallMovementControlSet# pressed OnDown!");
+      parent.IsKeyboardControl = true;
       parent.OnDown();
     }
   }
+  #endregion
+
+  #region Logic
+  private void Putt()
+  {
+    if(!parent.IsPuttCanceled) parent.OnApplyForce();
+    parent.IsPuttCanceled = false;
+  }
+
   #endregion
   #endregion
 }

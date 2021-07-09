@@ -58,9 +58,10 @@ public class BallMovementControlSet : MonoBehaviour
     if (Input.GetMouseButtonUp(0))
     {
       Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButtonUp!");
+      CheckIfPuttIsCanceledByMouse();
+      Putt();
       parent.IsMouseControl = false;
       //parent.IsKeyboardControl = true;
-      Putt();
     }
     else
     {
@@ -148,6 +149,11 @@ public class BallMovementControlSet : MonoBehaviour
   #endregion
 
   #region Logic
+  private void CheckIfPuttIsCanceledByMouse()
+  {
+    parent.OnCheckIfPuttIsCanceledByMouse();
+  }
+
   private void Putt()
   {
     if(!parent.IsPuttCanceled) parent.OnApplyForce();

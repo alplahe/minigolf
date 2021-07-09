@@ -26,7 +26,7 @@ public class BallMovement : MonoBehaviour
   private Vector3 worldPosition;
   private bool isPuttCanceled = false;
   private bool isLineShowedAfterBallStop = false;
-  private bool isBallPutted = false;
+  private bool isInsideCancelRadius = false;
 
   private const float MIN_ANGLE = 0.0f;
   private const float MAX_ANGLE = 360.0f;
@@ -67,6 +67,7 @@ public class BallMovement : MonoBehaviour
   private void Update()
   {
     UpdateLinePositions();
+    if (forceMagnitude < MIN_FORCE_MAGNITUDE) Debug.Log("CANCELED BY MOUSE");
   }
 
   #region Direction line
@@ -182,12 +183,27 @@ public class BallMovement : MonoBehaviour
     Vector3 lineDirection = Quaternion.Euler(0, angle, 0) * Vector3.forward;
 
     Vector3 cursorToBallVector = worldPosition - transform.position;
+    AssignIfCursorInsideCancelRadius(cursorToBallVector.magnitude);
     forceMagnitude = cursorToBallVector.magnitude - firstLinePositionDistanceGap; // Substract starting distance gap to starting
                                                                                   // counting force from that distance
     float cursorToBallAngle = Vector3.Angle(cursorToBallVector, Vector3.forward);
 
     cursorToBallAngle = ReformatAngle(worldPosition, cursorToBallAngle);
     angle = cursorToBallAngle;
+  }
+
+  private void AssignIfCursorInsideCancelRadius(float magnitude)
+  {
+    if (magnitude < firstLinePositionDistanceGap)
+    {
+      Debug.Log("isInsideCancelRadius");
+      isInsideCancelRadius = true;
+    }
+    else
+    {
+      Debug.Log("is NOT InsideCancelRadius");
+      isInsideCancelRadius = false;
+    }
   }
 
   // Reformat angle to 0-360 degrees. Previously it was 0-180, 180-0.
@@ -211,15 +227,24 @@ public class BallMovement : MonoBehaviour
                            ForceMode.Impulse);
 
     HideLinePositions();
-    isBallPutted = true;
   }
 
-  void CancelPutt()
+  private void CancelPutt()
   {
     if (!IsMouseControl) return;
     IsPuttCanceled = true;
     forceMagnitude = STARTING_FORCE_MAGNITUDE;
     ShowLineRenderer();
+  }
+
+  private void CheckIfPuttIsCanceledByMouse()
+  {
+    if (!IsMouseControl) return;
+    if (isInsideCancelRadius)
+    {
+      Debug.Log("CANCELED BY MOUSE");
+      CancelPutt();
+    }
   }
   #endregion
 
@@ -238,7 +263,13 @@ public class BallMovement : MonoBehaviour
   {
     CancelPutt();
   }
-  
+
+  public void OnCheckIfPuttIsCanceledByMouse()
+  {
+    CheckIfPuttIsCanceledByMouse();
+  }
+
+
   public void OnRegularDirectionSpeed()
   {
     currentChangeAngleSpeed = changeAngleSpeed;

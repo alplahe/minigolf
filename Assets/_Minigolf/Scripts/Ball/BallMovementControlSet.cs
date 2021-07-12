@@ -1,165 +1,173 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Minigolf;
 
-[RequireComponent(typeof(BallMovement))]
-public class BallMovementControlSet : MonoBehaviour
+namespace Ball
 {
-  public BallMovement parent;
-
-  #region Init
-  private void Awake()
+  [RequireComponent(typeof(BallMovement))]
+  public class BallMovementControlSet : MonoBehaviour
   {
-    parent = GetComponent<BallMovement>();
-  }
+    public BallMovement parent;
 
-  public void Init(BallMovement _parent)
-  {
-    parent = _parent;
-  }
-  #endregion
-
-  #region Listen for key pressed
-  private void Update()
-  {
-    OnLeftMouseButton();
-    OnLeftMouseButtonUp();
-
-    OnAccept();
-    OnCancel();
-    OnLeftShift();
-    OnLeft();
-    OnRight();
-    OnUp();
-    OnDown();
-  }
-  #endregion
-
-  #region Control set
-
-  #region Mouse
-  public void OnLeftMouseButton()
-  {
-    if (Input.GetMouseButton(0))
+    #region Init
+    private void Awake()
     {
-      Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButton!");
-      parent.IsMouseControl = true;
-      parent.IsKeyboardControl = false;
-      parent.OnUpdateLinePositionsWithMouse();
+      parent = GetComponent<BallMovement>();
     }
-    else
-    {
-      //parent.IsMouseControl = false;
-    }
-  }
 
-  public void OnLeftMouseButtonUp()
-  {
-    if (Input.GetMouseButtonUp(0))
+    public void Init(BallMovement _parent)
     {
-      Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButtonUp!");
-      CheckIfPuttIsCanceledByMouse();
-      Putt();
-      parent.IsMouseControl = false;
-      //parent.IsKeyboardControl = true;
+      parent = _parent;
     }
-    else
+    #endregion
+
+    #region Listen for key pressed
+    private void Update()
     {
-      //parent.IsMouseControl = false;
-    }
-  }
-  #endregion
+      OnLeftMouseButton();
+      OnLeftMouseButtonUp();
 
-  #region Keyboard
-  public void OnAccept()
-  {
-    if (Input.GetKeyDown(KeyCode.Space))
+      OnAccept();
+      OnCancel();
+      OnLeftShift();
+      OnLeft();
+      OnRight();
+      OnUp();
+      OnDown();
+    }
+    #endregion
+
+    #region Control set
+
+    #region Mouse
+    public void OnLeftMouseButton()
     {
-      Debug.Log($"#BallMovementControlSet# pressed accept!");
-      parent.IsKeyboardControl = true;
-      Putt();
-    }
-  }
+      if (Input.GetMouseButton(0))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButton!");
+        Messenger.Broadcast(BroadcastName.Screen.OnBeingTouched);
 
-  public void OnCancel()
-  {
-    if (Input.GetKeyDown(KeyCode.Escape))
+        parent.IsMouseControl = true;
+        parent.IsKeyboardControl = false;
+        parent.OnUpdateLinePositionsWithMouse();
+      }
+      else
+      {
+        //parent.IsMouseControl = false;
+      }
+    }
+
+    public void OnLeftMouseButtonUp()
     {
-      Debug.Log($"#BallMovementControlSet# pressed cancel!");
-      parent.OnCancelPutt();
-    }
-  }
+      if (Input.GetMouseButtonUp(0))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButtonUp!");
+        Messenger.Broadcast(BroadcastName.Screen.OnTouchedReleased);
 
-  public void OnLeftShift()
-  {
-    if (Input.GetKey(KeyCode.LeftShift))
+        CheckIfPuttIsCanceledByMouse();
+        Putt();
+        parent.IsMouseControl = false;
+        //parent.IsKeyboardControl = true;
+      }
+      else
+      {
+        //parent.IsMouseControl = false;
+      }
+    }
+    #endregion
+
+    #region Keyboard
+    public void OnAccept()
     {
-      Debug.Log($"#BallMovementControlSet# pressed OnLeftShift!");
-      parent.OnFastDirectionSpeed();
+      if (Input.GetKeyDown(KeyCode.Space))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed accept!");
+        parent.IsKeyboardControl = true;
+        Putt();
+      }
     }
-    else
+
+    public void OnCancel()
     {
-      parent.OnRegularDirectionSpeed();
+      if (Input.GetKeyDown(KeyCode.Escape))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed cancel!");
+        parent.OnCancelPutt();
+      }
     }
-  }
 
-  public void OnLeft()
-  {
-    if (Input.GetKey(KeyCode.LeftArrow) ||
-        Input.GetKey(KeyCode.A))
+    public void OnLeftShift()
     {
-      Debug.Log($"#BallMovementControlSet# pressed OnLeft!");
-      parent.IsKeyboardControl = true;
-      parent.OnLeft();
+      if (Input.GetKey(KeyCode.LeftShift))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnLeftShift!");
+        parent.OnFastDirectionSpeed();
+      }
+      else
+      {
+        parent.OnRegularDirectionSpeed();
+      }
     }
-  }
 
-  public void OnRight()
-  {
-    if (Input.GetKey(KeyCode.RightArrow) ||
-        Input.GetKey(KeyCode.D))
+    public void OnLeft()
     {
-      Debug.Log($"#BallMovementControlSet# pressed OnRight!");
-      parent.IsKeyboardControl = true;
-      parent.OnRight();
+      if (Input.GetKey(KeyCode.LeftArrow) ||
+          Input.GetKey(KeyCode.A))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnLeft!");
+        parent.IsKeyboardControl = true;
+        parent.OnLeft();
+      }
     }
-  }
 
-  public void OnUp()
-  {
-    if (Input.GetKey(KeyCode.UpArrow) ||
-        Input.GetKey(KeyCode.W))
+    public void OnRight()
     {
-      Debug.Log($"#BallMovementControlSet# pressed OnUp!");
-      parent.IsKeyboardControl = true;
-      parent.OnUp();
+      if (Input.GetKey(KeyCode.RightArrow) ||
+          Input.GetKey(KeyCode.D))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnRight!");
+        parent.IsKeyboardControl = true;
+        parent.OnRight();
+      }
     }
-  }
 
-  public void OnDown()
-  {
-    if (Input.GetKey(KeyCode.DownArrow) ||
-        Input.GetKey(KeyCode.S))
+    public void OnUp()
     {
-      Debug.Log($"#BallMovementControlSet# pressed OnDown!");
-      parent.IsKeyboardControl = true;
-      parent.OnDown();
+      if (Input.GetKey(KeyCode.UpArrow) ||
+          Input.GetKey(KeyCode.W))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnUp!");
+        parent.IsKeyboardControl = true;
+        parent.OnUp();
+      }
     }
-  }
-  #endregion
 
-  #region Logic
-  private void CheckIfPuttIsCanceledByMouse()
-  {
-    parent.OnCheckIfPuttIsCanceledByMouse();
-  }
+    public void OnDown()
+    {
+      if (Input.GetKey(KeyCode.DownArrow) ||
+          Input.GetKey(KeyCode.S))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnDown!");
+        parent.IsKeyboardControl = true;
+        parent.OnDown();
+      }
+    }
+    #endregion
 
-  private void Putt()
-  {
-    if(!parent.IsPuttCanceled) parent.OnApplyForce();
-    parent.IsPuttCanceled = false;
-  }
+    #region Logic
+    private void CheckIfPuttIsCanceledByMouse()
+    {
+      parent.OnCheckIfPuttIsCanceledByMouse();
+    }
 
-  #endregion
-  #endregion
+    private void Putt()
+    {
+      if(!parent.IsPuttCanceled) parent.OnApplyForce();
+      parent.IsPuttCanceled = false;
+    }
+
+    #endregion
+    #endregion
+  }
 }

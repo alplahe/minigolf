@@ -49,10 +49,10 @@ namespace Ball
     #region Init
     private void Start()
     {
-      Init();
+      //Init();
     }
 
-    private void Init()
+    public void Init()
     {
       ballRigidbody = GetComponent<Rigidbody>();
       lineRenderer = GetComponent<LineRenderer>();
@@ -84,12 +84,12 @@ namespace Ball
 
     private void OnScreenBeingTouched()
     {
-      Debug.Log("OnScreenBeingTouched");
+      Debug.Log("#BallMovement# OnScreenBeingTouched");
     }
 
     private void OnScreenTouchedReleased()
     {
-      Debug.Log("OnScreenTouchedReleased");
+      Debug.Log("#BallMovement# OnScreenTouchedReleased");
     }
 
     private void OnDestroy()
@@ -248,6 +248,11 @@ namespace Ball
     }
 
     #endregion
+
+    #region In-scenery UI
+
+    #endregion
+
 
     #region Force
     private void ApplyForce()

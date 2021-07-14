@@ -48,5 +48,12 @@ namespace Minigolf
       public static string OnTouchedDown = prefix + "OnTouchedDown";
       public static string OnTouchedReleased = prefix + "OnTouchedReleased";
     }
+
+    public class Ball
+    {
+      public static string prefix = "Ball_";
+
+      public static string OnBallInHole = prefix + "OnBallInHole";
+    }
   }
 }

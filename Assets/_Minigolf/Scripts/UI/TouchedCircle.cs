@@ -9,8 +9,6 @@ namespace UI
 {
   public class TouchedCircle : MonoBehaviour
   {
-    [SerializeField] private GameObject touchedCircleGO;
-
     private Image image;
 
     #region Init

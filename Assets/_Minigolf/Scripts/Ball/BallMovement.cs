@@ -73,18 +73,25 @@ namespace Ball
     private void AddListeners()
     {
       Messenger.AddListener(BroadcastName.Screen.OnBeingTouched, OnScreenBeingTouched);
+      Messenger.AddListener(BroadcastName.Screen.OnTouchedDown, OnScreenTouchedDown);
       Messenger.AddListener(BroadcastName.Screen.OnTouchedReleased, OnScreenTouchedReleased);
     }
     
     private void RemoveListeners()
     {
       Messenger.RemoveListener(BroadcastName.Screen.OnBeingTouched, OnScreenBeingTouched);
+      Messenger.RemoveListener(BroadcastName.Screen.OnTouchedDown, OnScreenTouchedDown);
       Messenger.RemoveListener(BroadcastName.Screen.OnTouchedReleased, OnScreenTouchedReleased);
     }
 
     private void OnScreenBeingTouched()
     {
       Debug.Log("#BallMovement# OnScreenBeingTouched");
+    }
+
+    private void OnScreenTouchedDown()
+    {
+      Debug.Log("#BallMovement# OnScreenTouchedDown");
     }
 
     private void OnScreenTouchedReleased()

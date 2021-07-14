@@ -26,6 +26,7 @@ namespace Ball
     private void Update()
     {
       OnLeftMouseButton();
+      OnLeftMouseButtonDown();
       OnLeftMouseButtonUp();
 
       OnAccept();
@@ -55,6 +56,16 @@ namespace Ball
       else
       {
         //parent.IsMouseControl = false;
+      }
+    }
+
+    public void OnLeftMouseButtonDown()
+    {
+      if (Input.GetMouseButtonDown(0))
+      {
+        Debug.Log($"#BallMovementControlSet# pressed OnLeftMouseButtonDown!");
+        Messenger.Broadcast(BroadcastName.Screen.OnTouchedDown);
+
       }
     }
 

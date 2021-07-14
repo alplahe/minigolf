@@ -45,6 +45,7 @@ namespace Minigolf
       public static string prefix = "Screen_";
 
       public static string OnBeingTouched = prefix + "OnBeingTouched";
+      public static string OnTouchedDown = prefix + "OnTouchedDown";
       public static string OnTouchedReleased = prefix + "OnTouchedReleased";
     }
   }

@@ -9,6 +9,8 @@ namespace UI
   {
     public void ResetScene()
     {
+      Debug.Log("#ResetUI# ResetScene");
+
       Scene scene = SceneManager.GetActiveScene(); 
       SceneManager.LoadScene(scene.name);
     }

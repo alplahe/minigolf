@@ -239,6 +239,7 @@ namespace Ball
       {
         Debug.Log("isInsideCancelRadius");
         isInsideCancelRadius = true;
+        Vibrator.Vibrate();
       }
       else
       {
